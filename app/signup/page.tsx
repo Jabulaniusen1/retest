@@ -432,7 +432,7 @@ export default function SignupPage() {
 
         {/* Footer */}
         <p className="text-xs text-muted-foreground mt-8">
-          © 2026 Capital City Bank. All rights reserved.
+          © 2010 Capital City Bank. All rights reserved.
         </p>
       </div>
 

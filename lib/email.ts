@@ -127,7 +127,7 @@ export async function sendAccountBlockedEmail(userEmail: string, userName: strin
             <strong>Capital City Bank Security Team</strong></p>
           </div>
           <div class="footer">
-            <p>© 2026 Capital City Bank. All rights reserved.<br>
+            <p>© 2010 Capital City Bank. All rights reserved.<br>
             This is an automated security notification. Please do not reply to this email.</p>
           </div>
         </div>
@@ -163,7 +163,7 @@ export async function sendAccountBlockedEmail(userEmail: string, userName: strin
     Best regards,
     Capital City Bank Security Team
     
-    © 2026 Capital City Bank. All rights reserved.
+    © 2010 Capital City Bank. All rights reserved.
   `
 
   return sendEmail({

@@ -283,7 +283,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-border py-8 text-center text-sm text-foreground/60">
-            <p>&copy; 2026 Capital City Bank. All rights reserved.</p>
+            <p>&copy; 2010 Capital City Bank. All rights reserved.</p>
           </div>
         </div>
       </footer>

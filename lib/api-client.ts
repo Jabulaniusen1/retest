@@ -181,5 +181,188 @@ export const apiClient = {
     const data = await response.json()
     if (!response.ok) throw new Error(data.error)
     return data.result
+  },
+
+  // Crypto operations
+  async getCryptoBalances(userId: string) {
+    const response = await fetch(`/api/crypto/balances/${userId}`)
+    const data = await response.json()
+    return data.balances
+  },
+
+  async getCryptoTransactions(userId: string, currency?: string) {
+    const url = currency 
+      ? `/api/crypto/transactions/${userId}?currency=${currency}`
+      : `/api/crypto/transactions/${userId}`
+    const response = await fetch(url)
+    const data = await response.json()
+    return data.transactions
+  },
+
+  async buyCrypto(userId: string, currency: string, amount: number, usdValue: number) {
+    const response = await fetch('/api/crypto/buy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, currency, amount, usdValue })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.transaction
+  },
+
+  async sendCrypto(userId: string, currency: string, amount: number, toAddress: string) {
+    const response = await fetch('/api/crypto/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, currency, amount, toAddress })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.transaction
+  },
+
+  // Loan operations
+  async getLoans(userId: string) {
+    const response = await fetch(`/api/loans/${userId}`)
+    const data = await response.json()
+    return data.loans
+  },
+
+  async applyForLoan(userId: string, loanType: string, amount: number, termMonths: number) {
+    const response = await fetch('/api/loans/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, loanType, amount, termMonths })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.loan
+  },
+
+  async makeLoanPayment(loanId: string, amount: number) {
+    const response = await fetch('/api/loans/payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loanId, amount })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.payment
+  },
+
+  async getLoanPayments(loanId: string) {
+    const response = await fetch(`/api/loans/payments/${loanId}`)
+    const data = await response.json()
+    return data.payments
+  },
+
+  // Grant operations
+  async getGrants(userId: string) {
+    const response = await fetch(`/api/grants/${userId}`)
+    const data = await response.json()
+    return data.grants
+  },
+
+  async applyForGrant(userId: string, grantType: string, title: string, description: string, amount: number) {
+    const response = await fetch('/api/grants/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, grantType, title, description, amount })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.grant
+  },
+
+  // Tax refund operations
+  async getTaxRefunds(userId: string) {
+    const response = await fetch(`/api/tax-refunds/${userId}`)
+    const data = await response.json()
+    return data.refunds
+  },
+
+  async fileTaxRefund(userId: string, taxYear: number, refundAmount: number, accountId?: string) {
+    const response = await fetch('/api/tax-refunds/file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, taxYear, refundAmount, accountId })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.refund
+  },
+
+  // Virtual card operations
+  async getVirtualCards(userId: string) {
+    const response = await fetch(`/api/virtual-cards/${userId}`)
+    const data = await response.json()
+    return data.cards
+  },
+
+  async createVirtualCard(userId: string, accountId: string, cardHolderName: string, spendingLimit?: number) {
+    const response = await fetch('/api/virtual-cards/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, accountId, cardHolderName, spendingLimit })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.card
+  },
+
+  async updateVirtualCardStatus(cardId: string, status: string) {
+    const response = await fetch('/api/virtual-cards/update-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cardId, status })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.card
+  },
+
+  // Payment service operations
+  async getPaymentServices(userId: string) {
+    const response = await fetch(`/api/payment-services/${userId}`)
+    const data = await response.json()
+    return data.services
+  },
+
+  async linkPaymentService(userId: string, serviceName: string, accountIdentifier: string) {
+    const response = await fetch('/api/payment-services/link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, serviceName, accountIdentifier })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.service
+  },
+
+  // Financial insights operations
+  async getFinancialInsights(userId: string) {
+    const response = await fetch(`/api/insights/${userId}`)
+    const data = await response.json()
+    return data.insights
+  },
+
+  async markInsightAsRead(insightId: string) {
+    const response = await fetch('/api/insights/mark-read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ insightId })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.insight
+  },
+
+  async getSpendingCategories(userId: string, month?: string) {
+    const url = month 
+      ? `/api/insights/spending/${userId}?month=${month}`
+      : `/api/insights/spending/${userId}`
+    const response = await fetch(url)
+    const data = await response.json()
+    return data.categories
   }
 }

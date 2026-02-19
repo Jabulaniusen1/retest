@@ -14,6 +14,10 @@ import {
   CreditCard,
   Wallet,
   Shield,
+  Bitcoin,
+  TrendingUp,
+  Gift,
+  Lightbulb,
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -44,7 +48,7 @@ export function Sidebar() {
 
   const menuItems = [
     {
-      label: 'Dashboard',
+      label: 'Home',
       icon: Home,
       href: '/dashboard',
     },
@@ -54,24 +58,9 @@ export function Sidebar() {
       href: '/dashboard/accounts',
     },
     {
-      label: 'Send Money',
-      icon: Send,
-      href: '/dashboard/send-money',
-    },
-    {
       label: 'Transactions',
       icon: History,
       href: '/dashboard/transactions',
-    },
-    {
-      label: 'Cards',
-      icon: CreditCard,
-      href: '/dashboard/cards',
-    },
-    {
-      label: 'KYC Verification',
-      icon: Shield,
-      href: '/dashboard/kyc',
     },
     {
       label: 'Settings',

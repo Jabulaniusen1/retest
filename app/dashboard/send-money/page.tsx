@@ -18,14 +18,24 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-type Step = 'select-from' | 'recipient' | 'amount' | 'review' | 'success'
-type TransferType = 'own' | 'external'
+type Step = 'select-from' | 'transfer-type' | 'recipient' | 'amount' | 'review' | 'success'
+type TransferType = 'own' | 'local' | 'international'
 
 export default function SendMoneyPage() {
   const { user } = useAuth()
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<Step>('select-from')
   const [transferType, setTransferType] = useState<TransferType>('own')
+  const [kycVerified, setKycVerified] = useState(false)
+  const [kycLoading, setKycLoading] = useState(false)
+  const [wireTransferDetails, setWireTransferDetails] = useState({
+    bankName: '',
+    swiftCode: '',
+    routingNumber: '',
+    recipientAddress: '',
+    recipientCity: '',
+    recipientCountry: ''
+  })
   const [accounts, setAccounts] = useState<Account[]>([])
   const [fromAccountId, setFromAccountId] = useState('')
   const [toAccountId, setToAccountId] = useState('')
@@ -59,14 +69,16 @@ export default function SendMoneyPage() {
     async function fetchData() {
       if (user) {
         try {
-          const [accs, bens, recent] = await Promise.all([
+          const [accs, bens, recent, kyc] = await Promise.all([
             apiClient.getAccounts(user.id),
             apiClient.getBeneficiaries(user.id),
-            apiClient.getRecentTransfers(user.id, 5)
+            apiClient.getRecentTransfers(user.id, 5),
+            apiClient.getKYCVerification(user.id)
           ])
           setAccounts(accs)
           setBeneficiaries(bens)
           setRecentTransfers(recent)
+          setKycVerified(kyc?.status === 'approved')
         } catch (error) {
           console.error('Error fetching data:', error)
         } finally {
@@ -127,6 +139,13 @@ export default function SendMoneyPage() {
         setError('Please select an account')
         return
       }
+      setCurrentStep('transfer-type')
+    } else if (currentStep === 'transfer-type') {
+      if (transferType === 'international' && !kycVerified) {
+        setError('KYC verification required for international wire transfers')
+        router.push('/dashboard/kyc')
+        return
+      }
       setCurrentStep('recipient')
     } else if (currentStep === 'recipient') {
       if (transferType === 'own') {
@@ -138,13 +157,34 @@ export default function SendMoneyPage() {
           setError('Cannot transfer to the same account')
           return
         }
-      } else {
+      } else if (transferType === 'local') {
         if (!recipientName.trim()) {
           setError('Please enter recipient name')
           return
         }
         if (!recipientAccount.trim()) {
           setError('Please enter account number')
+          return
+        }
+      } else if (transferType === 'international') {
+        if (!recipientName.trim()) {
+          setError('Please enter recipient name')
+          return
+        }
+        if (!recipientAccount.trim()) {
+          setError('Please enter account number')
+          return
+        }
+        if (!wireTransferDetails.bankName.trim()) {
+          setError('Please enter bank name')
+          return
+        }
+        if (!wireTransferDetails.swiftCode.trim()) {
+          setError('Please enter SWIFT/BIC code')
+          return
+        }
+        if (!wireTransferDetails.recipientCountry.trim()) {
+          setError('Please enter recipient country')
           return
         }
       }
@@ -191,12 +231,16 @@ export default function SendMoneyPage() {
           note || 'Transfer between accounts'
         )
       } else {
-        // For external transfers, we'll create a transaction without updating external account
+        // For local and international transfers
+        const transferNote = transferType === 'international' 
+          ? `International Wire to ${recipientName} - ${wireTransferDetails.bankName} (${wireTransferDetails.swiftCode})`
+          : `Transfer to ${recipientName}`
+        
         await apiClient.transferMoney(
           fromAccountId,
           '', // No destination account for external
           totalAmount,
-          note || `Transfer to ${recipientName}`
+          note || transferNote
         )
 
         // Save beneficiary if requested
@@ -273,56 +317,100 @@ export default function SendMoneyPage() {
             </div>
           </Card>
 
-          {/* Who are you sending to? */}
-          <Card className="p-6 mb-8">
-            <h2 className="text-xl font-semibold text-foreground mb-4">
-              Who are you sending to?
-            </h2>
-            <Tabs value={transferType} onValueChange={(v) => setTransferType(v as TransferType)}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="own">My Accounts</TabsTrigger>
-                <TabsTrigger value="external">External</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </Card>
         </>
       )}
 
-      {/* Progress Indicator */}
-      <div className="mb-8 flex gap-4">
-        {(['select-from', 'recipient', 'amount', 'review', 'success'] as const).map((step, idx) => (
-          <div key={step} className="flex items-center gap-2">
-            <div
-              className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                step === currentStep
-                  ? 'bg-primary text-primary-foreground'
-                  : ['recipient', 'amount', 'review'].includes(currentStep) &&
-                    ['recipient', 'amount', 'review'].indexOf(step as any) <
-                      ['recipient', 'amount', 'review'].indexOf(currentStep as any)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-foreground/60'
-              }`}
-            >
-              {idx + 1}
+      {/* Transfer Type Selection Step */}
+      {currentStep === 'transfer-type' && (
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold text-foreground mb-6">
+            Select Transfer Type
+          </h2>
+          <div className="space-y-4">
+            <div className="grid gap-4">
+              <button
+                onClick={() => setTransferType('own')}
+                className={`p-6 rounded-lg border-2 text-left transition-all ${
+                  transferType === 'own'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <h3 className="font-semibold text-lg mb-2">My Accounts</h3>
+                <p className="text-sm text-foreground/60">Transfer between your own accounts</p>
+              </button>
+              
+              <button
+                onClick={() => setTransferType('local')}
+                className={`p-6 rounded-lg border-2 text-left transition-all ${
+                  transferType === 'local'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <h3 className="font-semibold text-lg mb-2">Local Transfer</h3>
+                <p className="text-sm text-foreground/60">Send money to other accounts within the country</p>
+              </button>
+              
+              <button
+                onClick={() => setTransferType('international')}
+                className={`p-6 rounded-lg border-2 text-left transition-all ${
+                  transferType === 'international'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">International Transfer</h3>
+                    <p className="text-sm text-foreground/60">Send via Venmo, PayPal, Zelle, Wise, or wire transfer</p>
+                    <div className="flex gap-2 mt-2">
+                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Venmo</span>
+                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">PayPal</span>
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Zelle</span>
+                      <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Wise</span>
+                    </div>
+                  </div>
+                  {!kycVerified && (
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">KYC Required</span>
+                  )}
+                </div>
+                {!kycVerified && (
+                  <p className="text-xs text-yellow-600 mt-2">⚠️ You need to complete KYC verification first</p>
+                )}
+              </button>
             </div>
-            {idx < 4 && <div className="h-px w-4 bg-border" />}
+            
+            {error && (
+              <div className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+            
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStep('select-from')}
+                className="flex-1"
+              >
+                Back
+              </Button>
+              <Button onClick={handleNextStep} className="flex-1">
+                Continue
+              </Button>
+            </div>
           </div>
-        ))}
-      </div>
+        </Card>
+      )}
 
       <div className="max-w-2xl">
         {/* Recipient Step */}
         {currentStep === 'recipient' && (
           <Card className="p-8">
             <h2 className="text-2xl font-bold text-foreground mb-6">
-              Who are you sending to?
+              {transferType === 'own' ? 'Select Destination Account' : 
+               transferType === 'international' ? 'International Wire Details' : 'Recipient Details'}
             </h2>
-            <Tabs value={transferType} onValueChange={(v) => setTransferType(v as TransferType)} className="mb-6">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="own">My Accounts</TabsTrigger>
-                <TabsTrigger value="external">External</TabsTrigger>
-              </TabsList>
-            </Tabs>
             <div className="space-y-4">
               {transferType === 'own' ? (
                 <div>
@@ -345,7 +433,7 @@ export default function SendMoneyPage() {
                     </SelectContent>
                   </Select>
                 </div>
-              ) : (
+              ) : transferType === 'local' ? (
                 <>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
@@ -418,6 +506,121 @@ export default function SendMoneyPage() {
                   </label>
                 </div>
               </>
+              ) : (
+                <>
+                {/* International Wire Transfer Fields */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Recipient Name *
+                  </label>
+                  <Input
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="Full name of recipient"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Account Number / IBAN *
+                  </label>
+                  <Input
+                    value={recipientAccount}
+                    onChange={(e) => setRecipientAccount(e.target.value)}
+                    placeholder="Enter account number or IBAN"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Bank Name *
+                  </label>
+                  <Input
+                    value={wireTransferDetails.bankName}
+                    onChange={(e) => setWireTransferDetails({...wireTransferDetails, bankName: e.target.value})}
+                    placeholder="Recipient's bank name"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      SWIFT/BIC Code *
+                    </label>
+                    <Input
+                      value={wireTransferDetails.swiftCode}
+                      onChange={(e) => setWireTransferDetails({...wireTransferDetails, swiftCode: e.target.value.toUpperCase()})}
+                      placeholder="e.g., CHASUS33"
+                      maxLength={11}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Routing Number
+                    </label>
+                    <Input
+                      value={wireTransferDetails.routingNumber}
+                      onChange={(e) => setWireTransferDetails({...wireTransferDetails, routingNumber: e.target.value})}
+                      placeholder="Optional"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Recipient Address
+                  </label>
+                  <Input
+                    value={wireTransferDetails.recipientAddress}
+                    onChange={(e) => setWireTransferDetails({...wireTransferDetails, recipientAddress: e.target.value})}
+                    placeholder="Street address"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      City
+                    </label>
+                    <Input
+                      value={wireTransferDetails.recipientCity}
+                      onChange={(e) => setWireTransferDetails({...wireTransferDetails, recipientCity: e.target.value})}
+                      placeholder="City"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Country *
+                    </label>
+                    <Input
+                      value={wireTransferDetails.recipientCountry}
+                      onChange={(e) => setWireTransferDetails({...wireTransferDetails, recipientCountry: e.target.value})}
+                      placeholder="Country"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="save-beneficiary"
+                    checked={saveBeneficiary}
+                    onChange={(e) => setSaveBeneficiary(e.target.checked)}
+                    className="h-4 w-4"
+                  />
+                  <label htmlFor="save-beneficiary" className="text-sm text-foreground">
+                    Save as beneficiary
+                  </label>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-800">
+                    <strong>Note:</strong> International wire transfers may take 1-5 business days to complete. Additional fees may apply.
+                  </p>
+                </div>
+              </>
               )}
               {error && (
                 <div className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
@@ -427,7 +630,7 @@ export default function SendMoneyPage() {
               <div className="flex gap-4">
                 <Button
                   variant="outline"
-                  onClick={() => setCurrentStep('select-from')}
+                  onClick={() => setCurrentStep('transfer-type')}
                   className="flex-1"
                 >
                   Back
@@ -639,7 +842,7 @@ export default function SendMoneyPage() {
                         : recipientName || 'External Recipient'}
                     </span>
                   </div>
-                  {transferType === 'external' && recipientAccount && (
+                  {(transferType === 'local' || transferType === 'international') && recipientAccount && (
                     <div className="flex justify-between">
                       <span className="text-foreground/60 text-sm">Account Number</span>
                       <span className="font-medium text-foreground text-sm">

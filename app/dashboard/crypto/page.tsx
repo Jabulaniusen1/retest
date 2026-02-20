@@ -95,13 +95,13 @@ export default function CryptoPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Crypto Wallet</h1>
-          <p className="text-muted-foreground mt-1">Manage your cryptocurrency portfolio</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Crypto Wallet</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">Manage your cryptocurrency portfolio</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2 md:gap-3">
           <Dialog open={buyDialogOpen} onOpenChange={setBuyDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
@@ -219,7 +219,7 @@ export default function CryptoPage() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 lg:grid-cols-4 gap-4">
         {Object.entries(CRYPTO_INFO).map(([symbol, info]) => {
           const balance = balances.find(b => b.currency === symbol)
           const amount = balance?.balance || 0
@@ -239,7 +239,7 @@ export default function CryptoPage() {
                 </div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-foreground">
+                <div className="text-2xl md:text-3xl font-bold text-foreground">
                   {amount.toFixed(8)}
                 </div>
                 <div className="text-sm text-muted-foreground">
@@ -254,7 +254,7 @@ export default function CryptoPage() {
         })}
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         <h2 className="text-xl font-bold text-foreground mb-4">Recent Transactions</h2>
         <div className="space-y-3">
           {transactions.length === 0 ? (

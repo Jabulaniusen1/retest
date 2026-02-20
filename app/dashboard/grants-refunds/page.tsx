@@ -106,10 +106,10 @@ export default function GrantsRefundsPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground">Grants & Tax Refunds</h1>
-        <p className="text-muted-foreground mt-1">Apply for grants and track your tax refunds</p>
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Grants & Tax Refunds</h1>
+        <p className="text-sm md:text-base text-muted-foreground mt-1">Apply for grants and track your tax refunds</p>
       </div>
 
       <Tabs defaultValue="grants" className="space-y-6">

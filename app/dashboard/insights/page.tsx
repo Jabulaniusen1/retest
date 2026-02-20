@@ -72,14 +72,14 @@ export default function InsightsPage() {
   const topCategory = spendingCategories?.[0]
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground">Financial Insights</h1>
-        <p className="text-muted-foreground mt-1">AI-powered insights to help you manage your finances better</p>
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground">Financial Insights</h1>
+        <p className="text-sm md:text-base text-muted-foreground mt-1">AI-powered insights to help you manage your finances better</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+        <Card className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <PieChart className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">This Month's Spending</span>
@@ -89,7 +89,7 @@ export default function InsightsPage() {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <TrendingUp className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Top Category</span>
@@ -104,7 +104,7 @@ export default function InsightsPage() {
           )}
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <Lightbulb className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Active Insights</span>
@@ -116,7 +116,7 @@ export default function InsightsPage() {
       </div>
 
       {spendingCategories && spendingCategories.length > 0 && (
-        <Card className="p-6">
+        <Card className="p-4 md:p-6">
           <h2 className="text-xl font-bold text-foreground mb-4">Spending by Category</h2>
           <div className="space-y-3">
             {spendingCategories?.map((category) => {

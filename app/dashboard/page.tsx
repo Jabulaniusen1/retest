@@ -114,17 +114,17 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-lg font-bold text-white">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-base md:text-lg font-bold text-white">
             {user?.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">Good Morning 👋</h1>
-            <p className="text-sm text-muted-foreground">{user?.name}</p>
+            <h1 className="text-lg md:text-xl font-bold text-foreground">Good Morning 👋</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">{user?.name}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 md:gap-3">
           <Button variant="ghost" size="icon" className="hover:bg-accent rounded-full" onClick={() => router.push('/dashboard/settings')}>
             <Settings className="h-5 w-5" />
           </Button>
@@ -136,23 +136,23 @@ export default function DashboardPage() {
       </div>
 
       {/* Balance Card - Swipeable */}
-      <div className="mb-6">
-        <Card className="relative overflow-hidden bg-gradient-to-br from-primary to-primary/80 border-0 text-white p-6">
-          <div className="flex items-start justify-between mb-4">
+      <div className="mb-4 md:mb-6">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-primary to-primary/80 border-0 text-white p-4 md:p-6">
+          <div className="flex items-start justify-between mb-3 md:mb-4">
             <div>
-              <p className="text-sm opacity-90 mb-1">CAPITAL CITY BANK</p>
-              <p className="text-sm opacity-90">{user?.name}</p>
+              <p className="text-xs md:text-sm opacity-90 mb-1">CAPITAL CITY BANK</p>
+              <p className="text-xs md:text-sm opacity-90">{user?.name}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm opacity-90 mb-1">{balanceType === 'fiat' ? 'Fiat Account' : 'Crypto Wallet'}</p>
-              <p className="text-sm font-mono">•••• {balanceType === 'fiat' ? (currentAccount?.account_number?.slice(-4) || '****') : '****'}</p>
+              <p className="text-xs md:text-sm opacity-90 mb-1">{balanceType === 'fiat' ? 'Fiat Account' : 'Crypto Wallet'}</p>
+              <p className="text-xs md:text-sm font-mono">•••• {balanceType === 'fiat' ? (currentAccount?.account_number?.slice(-4) || '****') : '****'}</p>
             </div>
           </div>
 
-          <div className="my-6">
-            <p className="text-sm opacity-90 mb-2">Available Balance</p>
-            <div className="flex items-center gap-3">
-              <h2 className="text-4xl font-bold">
+          <div className="my-4 md:my-6">
+            <p className="text-xs md:text-sm opacity-90 mb-2">Available Balance</p>
+            <div className="flex items-center gap-2 md:gap-3">
+              <h2 className="text-2xl md:text-4xl font-bold">
                 {showBalance ? formatCurrency(displayBalance) : '••••••'}
               </h2>
               <Button
@@ -175,8 +175,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Decorative circles */}
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10"></div>
-          <div className="absolute -right-5 top-20 h-24 w-24 rounded-full bg-white/5"></div>
+          <div className="absolute -right-10 -top-10 h-32 w-32 md:h-40 md:w-40 rounded-full bg-white/10"></div>
+          <div className="absolute -right-5 top-16 md:top-20 h-20 w-20 md:h-24 md:w-24 rounded-full bg-white/5"></div>
         </Card>
 
         {/* Balance Type Toggle */}
@@ -194,151 +194,146 @@ export default function DashboardPage() {
             }`}
           />
         </div>
-        <p className="text-center text-sm text-muted-foreground mt-2 flex items-center justify-center gap-2">
-          <ArrowDownUp className="h-4 w-4" />
-          Swipe to switch between accounts
+        <p className="text-center text-xs md:text-sm text-muted-foreground mt-2 flex items-center justify-center gap-2">
+          <ArrowDownUp className="h-3 w-3 md:h-4 md:w-4" />
+          <span className="hidden sm:inline">Swipe to switch between accounts</span>
+          <span className="sm:hidden">Switch accounts</span>
         </p>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-4 gap-2 md:gap-4 mb-6 md:mb-8">
         <button
           onClick={() => router.push('/dashboard/add-money')}
-          className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-yellow-500 hover:bg-yellow-600 transition-colors shadow-md"
+          className="flex flex-col items-center gap-1 md:gap-2 p-2 md:p-4 rounded-xl md:rounded-2xl bg-yellow-500 hover:bg-yellow-600 transition-colors shadow-md"
         >
-          <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
-            <Plus className="h-6 w-6 text-white" />
+          <div className="h-8 w-8 md:h-12 md:w-12 rounded-full bg-white/20 flex items-center justify-center">
+            <Plus className="h-4 w-4 md:h-6 md:w-6 text-white" />
           </div>
-          <span className="text-xs font-medium text-white">Top Up</span>
+          <span className="text-[10px] md:text-xs font-medium text-white">Top Up</span>
         </button>
 
         <button
           onClick={() => router.push('/dashboard/send-money')}
-          className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors shadow-md"
+          className="flex flex-col items-center gap-1 md:gap-2 p-2 md:p-4 rounded-xl md:rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors shadow-md"
         >
-          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <Send className="h-6 w-6 text-primary" />
+          <div className="h-8 w-8 md:h-12 md:w-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <Send className="h-4 w-4 md:h-6 md:w-6 text-primary" />
           </div>
-          <span className="text-xs font-medium text-foreground">Send</span>
+          <span className="text-[10px] md:text-xs font-medium text-foreground">Send</span>
         </button>
 
         <button
           onClick={() => router.push('/dashboard/add-money')}
-          className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors shadow-md"
+          className="flex flex-col items-center gap-1 md:gap-2 p-2 md:p-4 rounded-xl md:rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors shadow-md"
         >
-          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <ArrowDownUp className="h-6 w-6 text-primary" />
+          <div className="h-8 w-8 md:h-12 md:w-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <ArrowDownUp className="h-4 w-4 md:h-6 md:w-6 text-primary" />
           </div>
-          <span className="text-xs font-medium text-foreground">Receive</span>
+          <span className="text-[10px] md:text-xs font-medium text-foreground">Receive</span>
         </button>
 
         <button
           onClick={() => router.push('/dashboard/accounts')}
-          className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors shadow-md"
+          className="flex flex-col items-center gap-1 md:gap-2 p-2 md:p-4 rounded-xl md:rounded-2xl bg-secondary hover:bg-secondary/80 transition-colors shadow-md"
         >
-          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <Wallet className="h-6 w-6 text-primary" />
+          <div className="h-8 w-8 md:h-12 md:w-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <Wallet className="h-4 w-4 md:h-6 md:w-6 text-primary" />
           </div>
-          <span className="text-xs font-medium text-foreground">More</span>
+          <span className="text-[10px] md:text-xs font-medium text-foreground">More</span>
         </button>
       </div>
 
       {/* Financial Services */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-foreground">Financial Services</h3>
-          <Button variant="ghost" className="text-primary hover:text-primary/80 text-sm">
-            View All →
-          </Button>
-        </div>
+      <div className="mb-6 md:mb-8">s
 
         <div className="grid grid-cols-2 gap-4">
           <Card
-            className="p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
+            className="p-3 md:p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
             onClick={() => router.push('/dashboard/crypto')}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-full bg-orange-500/20 flex items-center justify-center">
-                <Bitcoin className="h-5 w-5 text-orange-500" />
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                <Bitcoin className="h-4 w-4 md:h-5 md:w-5 text-orange-500" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Crypto Wallet</p>
-                <p className="text-xs text-muted-foreground">{cryptoBalances.length} assets</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-foreground truncate">Crypto Wallet</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">{cryptoBalances.length} assets</p>
               </div>
             </div>
           </Card>
 
           <Card
-            className="p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
+            className="p-3 md:p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
             onClick={() => router.push('/dashboard/loans')}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-500" />
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-green-500" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Loans</p>
-                <p className="text-xs text-muted-foreground">Apply now</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-foreground truncate">Loans</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Apply now</p>
               </div>
             </div>
           </Card>
 
           <Card
-            className="p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
+            className="p-3 md:p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
             onClick={() => router.push('/dashboard/virtual-cards')}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-purple-500" />
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                <CreditCard className="h-4 w-4 md:h-5 md:w-5 text-purple-500" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Virtual Cards</p>
-                <p className="text-xs text-muted-foreground">Create card</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-foreground truncate">Virtual Cards</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Create card</p>
               </div>
             </div>
           </Card>
 
           <Card
-            className="p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
+            className="p-3 md:p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
             onClick={() => router.push('/dashboard/grants-refunds')}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                <Gift className="h-5 w-5 text-pink-500" />
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-pink-500/20 flex items-center justify-center flex-shrink-0">
+                <Gift className="h-4 w-4 md:h-5 md:w-5 text-pink-500" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Grants & Refunds</p>
-                <p className="text-xs text-muted-foreground">Track status</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-foreground truncate">Grants & Refunds</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Track status</p>
               </div>
             </div>
           </Card>
 
           <Card
-            className="p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
+            className="p-3 md:p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
             onClick={() => router.push('/dashboard/insights')}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                <Lightbulb className="h-5 w-5 text-yellow-500" />
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                <Lightbulb className="h-4 w-4 md:h-5 md:w-5 text-yellow-500" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Insights</p>
-                <p className="text-xs text-muted-foreground">View analytics</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-foreground truncate">Insights</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">View analytics</p>
               </div>
             </div>
           </Card>
 
           <Card
-            className="p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
+            className="p-3 md:p-4 bg-card border-border hover:shadow-md cursor-pointer transition-all"
             onClick={() => router.push('/dashboard/cards')}
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-blue-500" />
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                <CreditCard className="h-4 w-4 md:h-5 md:w-5 text-blue-500" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Debit Cards</p>
-                <p className="text-xs text-muted-foreground">Manage cards</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-foreground truncate">Debit Cards</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Manage cards</p>
               </div>
             </div>
           </Card>
@@ -346,29 +341,29 @@ export default function DashboardPage() {
       </div>
 
       {/* Support Section */}
-      <div className="mb-8">
-        <h3 className="text-lg font-bold text-foreground mb-4">Need Help?</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 border-0 cursor-pointer hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
-                <MessageCircle className="h-6 w-6 text-white" />
+      <div className="mb-6 md:mb-8">
+        <h3 className="text-base md:text-lg font-bold text-foreground mb-3 md:mb-4">Need Help?</h3>
+        <div className="grid grid-cols-2 gap-3 md:gap-4">
+          <Card className="p-3 md:p-4 bg-gradient-to-br from-blue-500 to-blue-600 border-0 cursor-pointer hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-white">Live Chat</p>
-                <p className="text-xs text-blue-100">Chat with us now</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-white">Live Chat</p>
+                <p className="text-[10px] md:text-xs text-blue-100 truncate">Chat with us now</p>
               </div>
             </div>
           </Card>
 
-          <Card className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 border-0 cursor-pointer hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
-                <Mail className="h-6 w-6 text-white" />
+          <Card className="p-3 md:p-4 bg-gradient-to-br from-purple-500 to-purple-600 border-0 cursor-pointer hover:shadow-lg transition-shadow">
+            <div className="flex items-center gap-2 md:gap-3">
+              <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <Mail className="h-5 w-5 md:h-6 md:w-6 text-white" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-white">Email Support</p>
-                <p className="text-xs text-purple-100">support@capitalbank.com</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm font-semibold text-white">Email Support</p>
+                <p className="text-[10px] md:text-xs text-purple-100 truncate">support@capitalbank.com</p>
               </div>
             </div>
           </Card>

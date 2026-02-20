@@ -81,11 +81,11 @@ export default function LoansPage() {
   const totalMonthlyPayment = activeLoans.reduce((sum, loan) => sum + loan.monthly_payment, 0)
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-8 space-y-4 md:space-y-6">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Loans</h1>
-          <p className="text-muted-foreground mt-1">Manage your loan applications and payments</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Loans</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">Manage your loan applications and payments</p>
         </div>
         <Dialog open={applyDialogOpen} onOpenChange={setApplyDialogOpen}>
           <DialogTrigger asChild>
@@ -150,8 +150,8 @@ export default function LoansPage() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+        <Card className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <DollarSign className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Total Outstanding</span>
@@ -161,7 +161,7 @@ export default function LoansPage() {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <Calendar className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Monthly Payment</span>
@@ -171,7 +171,7 @@ export default function LoansPage() {
           </div>
         </Card>
 
-        <Card className="p-6">
+        <Card className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-2">
             <CreditCard className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-muted-foreground">Active Loans</span>

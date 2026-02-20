@@ -265,7 +265,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Financial Services */}
-      <div className="mb-6 md:mb-8">s
+      <div className="mb-6 md:mb-8">
 
         <div className="grid grid-cols-2 gap-4">
           <Card

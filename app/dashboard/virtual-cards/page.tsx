@@ -33,10 +33,12 @@ export default function VirtualCardsPage() {
         apiClient.getVirtualCards(user.id),
         apiClient.getAccounts(user.id)
       ])
-      setCards(cardsData)
-      setAccounts(accountsData)
+      setCards(cardsData || [])
+      setAccounts(accountsData || [])
     } catch (error) {
       console.error('Error fetching data:', error)
+      setCards([])
+      setAccounts([])
     } finally {
       setLoading(false)
     }
@@ -164,7 +166,7 @@ export default function VirtualCardsPage() {
         </Dialog>
       </div>
 
-      {cards.length === 0 ? (
+      {!cards || cards.length === 0 ? (
         <Card className="p-12">
           <div className="text-center">
             <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

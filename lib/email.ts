@@ -113,11 +113,11 @@ export async function sendAccountBlockedEmail(userEmail: string, userName: strin
             </ul>
             
             <p>
-              <a href="mailto:support@capitalcitybank.com" class="button">Contact Support</a>
+              <a href="mailto:themarkhandle@gmail.com" class="button">Contact Support</a>
             </p>
             
             <p><strong>Support Contact Information:</strong><br>
-            Email: support@capitalcitybank.com<br>
+            Email: themarkhandle@gmail.com<br>
             Phone: 1-800-CAPITAL (1-800-227-4825)<br>
             Available 24/7</p>
             
@@ -154,7 +154,7 @@ export async function sendAccountBlockedEmail(userEmail: string, userName: strin
     - Do not share your account credentials with anyone
     
     Support Contact Information:
-    Email: support@capitalcitybank.com
+    Email: themarkhandle@gmail.com
     Phone: 1-800-CAPITAL (1-800-227-4825)
     Available 24/7
     

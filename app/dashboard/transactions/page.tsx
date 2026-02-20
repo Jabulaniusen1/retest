@@ -132,7 +132,7 @@ export default function TransactionsPage() {
   return (
     <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <Button
           variant="ghost"
           size="sm"
@@ -142,8 +142,8 @@ export default function TransactionsPage() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             Transaction History
           </h1>
           <div className="flex gap-2">
@@ -151,18 +151,22 @@ export default function TransactionsPage() {
               variant="outline"
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
+              className="flex-1 sm:flex-none"
             >
               <Filter className="mr-2 h-4 w-4" />
-              {showFilters ? 'Hide' : 'Show'} Filters
+              <span className="hidden sm:inline">{showFilters ? 'Hide' : 'Show'} Filters</span>
+              <span className="sm:hidden">Filters</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={handleExport}
               disabled={filteredTransactions.length === 0}
+              className="flex-1 sm:flex-none"
             >
               <Download className="mr-2 h-4 w-4" />
-              Export CSV
+              <span className="hidden sm:inline">Export CSV</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
         </div>
@@ -250,41 +254,51 @@ export default function TransactionsPage() {
       {/* Type Filters */}
       <div className="mb-6">
         <p className="text-sm font-medium text-foreground mb-3">Filter by Type</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
           <Button
             variant={filter === 'all' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('all')}
+            className="text-xs sm:text-sm"
           >
-            All ({transactions.length})
+            <span className="hidden sm:inline">All ({transactions.length})</span>
+            <span className="sm:hidden">All</span>
           </Button>
           <Button
             variant={filter === 'transfer' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('transfer')}
+            className="text-xs sm:text-sm"
           >
-            Transfers ({transactions.filter(t => t.transaction_type === 'transfer').length})
+            <span className="hidden sm:inline">Transfers ({transactions.filter(t => t.transaction_type === 'transfer').length})</span>
+            <span className="sm:hidden">Transfers</span>
           </Button>
           <Button
             variant={filter === 'deposit' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('deposit')}
+            className="text-xs sm:text-sm"
           >
-            Deposits ({transactions.filter(t => t.transaction_type === 'deposit').length})
+            <span className="hidden sm:inline">Deposits ({transactions.filter(t => t.transaction_type === 'deposit').length})</span>
+            <span className="sm:hidden">Deposits</span>
           </Button>
           <Button
             variant={filter === 'payment' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('payment')}
+            className="text-xs sm:text-sm"
           >
-            Payments ({transactions.filter(t => t.transaction_type === 'payment').length})
+            <span className="hidden sm:inline">Payments ({transactions.filter(t => t.transaction_type === 'payment').length})</span>
+            <span className="sm:hidden">Payments</span>
           </Button>
           <Button
             variant={filter === 'withdrawal' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter('withdrawal')}
+            className="text-xs sm:text-sm col-span-2 sm:col-span-1"
           >
-            Withdrawals ({transactions.filter(t => t.transaction_type === 'withdrawal').length})
+            <span className="hidden sm:inline">Withdrawals ({transactions.filter(t => t.transaction_type === 'withdrawal').length})</span>
+            <span className="sm:hidden">Withdrawals</span>
           </Button>
         </div>
       </div>

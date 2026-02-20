@@ -3,16 +3,23 @@ import { transferMoney } from '@/lib/supabase/database'
 
 export async function POST(request: NextRequest) {
   try {
-    const { fromAccountId, toAccountId, amount, description } = await request.json()
+    const { fromAccountId, toAccountId, amount, description, recipientName, recipientAccountNumber } = await request.json()
 
-    if (!fromAccountId || !toAccountId || !amount) {
+    if (!fromAccountId || !amount) {
       return NextResponse.json(
-        { error: 'fromAccountId, toAccountId, and amount are required' },
+        { error: 'fromAccountId and amount are required' },
         { status: 400 }
       )
     }
 
-    const transaction = await transferMoney(fromAccountId, toAccountId, amount, description)
+    const transaction = await transferMoney(
+      fromAccountId, 
+      toAccountId || undefined, 
+      amount, 
+      description,
+      recipientName,
+      recipientAccountNumber
+    )
 
     return NextResponse.json({ success: true, transaction })
   } catch (error: any) {

@@ -21,8 +21,8 @@ BEGIN
   VALUES (NEW.id, 'User'); -- Default name, user will update in settings
 
   -- Create default checking account
-  INSERT INTO public.accounts (user_id, account_number, account_type_id, balance)
-  VALUES (NEW.id, generate_account_number(), checking_account_type_id, 10000.00)
+  INSERT INTO public.accounts (user_id, account_number, account_type_id, balance, routing_number, swift_code)
+  VALUES (NEW.id, generate_account_number(), checking_account_type_id, 0.00, generate_routing_number(), generate_swift_code())
   RETURNING id INTO new_account_id;
 
   -- Create default debit card

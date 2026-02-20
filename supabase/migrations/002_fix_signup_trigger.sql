@@ -45,7 +45,7 @@ BEGIN
     END IF;
     
     INSERT INTO public.accounts (user_id, account_number, account_type_id, balance)
-    VALUES (NEW.id, new_account_number, checking_account_type_id, 10000.00)
+    VALUES (NEW.id, new_account_number, checking_account_type_id, 0.00)
     RETURNING id INTO new_account_id;
   END;
 

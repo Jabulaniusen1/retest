@@ -11,13 +11,7 @@ import {
   History,
   Settings,
   LogOut,
-  CreditCard,
   Wallet,
-  Shield,
-  Bitcoin,
-  TrendingUp,
-  Gift,
-  Lightbulb,
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -70,9 +64,9 @@ export function Sidebar() {
   ]
 
   return (
-    <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col">
+    <div className="h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col overflow-hidden fixed w-64">
       {/* Logo */}
-      <div className="border-b border-slate-700 p-6">
+      <div className="border-b border-slate-700 p-6 flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg flex items-center justify-center">
             <div className="h-6 w-6 rounded bg-white"></div>
@@ -81,29 +75,10 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* User Info */}
-      <div className="border-b border-slate-700 p-6">
-        <div className="flex items-center gap-3">
-          {profile?.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt="Profile"
-              className="h-12 w-12 rounded-full object-cover border-2 border-slate-600 shadow-lg"
-            />
-          ) : (
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-lg font-bold text-white shadow-lg">
-              {user?.name.charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div>
-            <p className="text-sm font-semibold text-white">{user?.name}</p>
-            <p className="text-xs text-blue-200">{user?.email}</p>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Menu Items */}
-      <nav className="flex-1 space-y-2 p-4">
+      <nav className="flex-1 space-y-2 p-4 overflow-hidden">
         {menuItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -125,8 +100,29 @@ export function Sidebar() {
         })}
       </nav>
 
+      {/* User Info */}
+      <div className="border-b border-slate-700 p-6 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt="Profile"
+              className="h-12 w-12 rounded-full object-cover border-2 border-slate-600 shadow-lg"
+            />
+          ) : (
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-lg font-bold text-white shadow-lg">
+              {user?.name.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div>
+            <p className="text-sm font-semibold text-white">{user?.name}</p>
+            <p className="text-xs text-blue-200 truncate max-w-[150px]">{user?.email}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Logout */}
-      <div className="border-t border-slate-700 p-4">
+      <div className="border-t border-slate-700 p-4 flex-shrink-0">
         <Button
           variant="outline"
           className="w-full justify-start h-14 text-base font-medium text-slate-300 border-slate-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200"

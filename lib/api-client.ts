@@ -74,11 +74,11 @@ export const apiClient = {
     return data.transactions
   },
 
-  async transferMoney(fromAccountId: string, toAccountId: string, amount: number, description?: string) {
+  async transferMoney(fromAccountId: string, toAccountId: string | undefined, amount: number, description?: string, recipientName?: string, recipientAccountNumber?: string) {
     const response = await fetch('/api/transfer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fromAccountId, toAccountId, amount, description })
+      body: JSON.stringify({ fromAccountId, toAccountId, amount, description, recipientName, recipientAccountNumber })
     })
     const data = await response.json()
     if (!response.ok) throw new Error(data.error)

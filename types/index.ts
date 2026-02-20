@@ -16,6 +16,8 @@ export interface Account {
   currency: string
   status: 'active' | 'frozen' | 'closed'
   nickname?: string
+  routing_number: string
+  swift_code: string
   created_at: string
   updated_at: string
   account_type?: AccountType

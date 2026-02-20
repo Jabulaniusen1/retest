@@ -238,10 +238,16 @@ export async function createAccount(
   console.log('Creating account with:', { userId, accountTypeId, nickname })
   
   try {
-    // Generate account number directly (no RPC needed)
+    // Generate account number, routing number, and SWIFT code
     const accountNumber = `ACC${Date.now()}${Math.random().toString().slice(2, 6)}`
     
-    console.log('Generated account number:', accountNumber)
+    // Generate routing number (9 digits)
+    const routingNumber = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0')
+    
+    // Generate SWIFT code (CCBKUS33XXX format)
+    const swiftCode = `CCBKUS33${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`
+    
+    console.log('Generated account details:', { accountNumber, routingNumber, swiftCode })
     
     // Try new schema first (with account_types table)
     const { data, error } = await supabase
@@ -251,7 +257,9 @@ export async function createAccount(
         account_number: accountNumber,
         account_type_id: accountTypeId,
         balance: 0,
-        nickname: nickname
+        nickname: nickname,
+        routing_number: routingNumber,
+        swift_code: swiftCode
       })
       .select(`
         *,

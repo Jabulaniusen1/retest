@@ -83,48 +83,57 @@ export function TransactionItem({ transaction }: TransactionItemProps) {
   )
 
   return (
-    <div className="flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors">
-      <div className="flex items-center gap-4 flex-1">
-        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+    <div className="p-3 md:p-4 hover:bg-secondary/50 transition-colors">
+      <div className="flex items-start gap-3 md:gap-4">
+        <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
           {getIcon()}
         </div>
+        
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="font-semibold text-foreground truncate">
-              {transaction.recipient_name || getTypeLabel()}
-            </p>
-            {getStatusIcon()}
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-sm md:text-base text-foreground truncate">
+                  {transaction.recipient_name || getTypeLabel()}
+                </p>
+                <span className="hidden sm:inline">{getStatusIcon()}</span>
+              </div>
+              <p className="text-xs md:text-sm text-foreground/60 truncate">
+                {transaction.description}
+              </p>
+            </div>
+            
+            <div className="text-right flex-shrink-0">
+              <p
+                className={`font-bold text-base md:text-lg ${
+                  isIncoming ? 'text-primary' : 'text-foreground'
+                }`}
+              >
+                {isIncoming ? '+' : '-'}{formatCurrency(transaction.amount, '')}
+              </p>
+            </div>
           </div>
-          <p className="text-sm text-foreground/60 truncate">
-            {transaction.description}
-          </p>
-          <p className="text-xs text-foreground/40 mt-1">
-            {formattedDate} at {formattedTime}
-          </p>
+          
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <p className="text-xs text-foreground/40">
+              <span className="hidden sm:inline">{formattedDate} at {formattedTime}</span>
+              <span className="sm:hidden">{formattedDate}</span>
+            </p>
+            <Badge
+              variant={
+                transaction.status === 'completed'
+                  ? 'default'
+                  : transaction.status === 'pending'
+                  ? 'secondary'
+                  : 'destructive'
+              }
+              className="text-[10px] md:text-xs"
+            >
+              {transaction.status.charAt(0).toUpperCase() +
+                transaction.status.slice(1)}
+            </Badge>
+          </div>
         </div>
-      </div>
-
-      <div className="text-right ml-4">
-        <p
-          className={`font-bold text-lg ${
-            isIncoming ? 'text-primary' : 'text-foreground'
-          }`}
-        >
-          {isIncoming ? '+' : '-'}{formatCurrency(transaction.amount, '')}
-        </p>
-        <Badge
-          variant={
-            transaction.status === 'completed'
-              ? 'default'
-              : transaction.status === 'pending'
-              ? 'secondary'
-              : 'destructive'
-          }
-          className="text-xs"
-        >
-          {transaction.status.charAt(0).toUpperCase() +
-            transaction.status.slice(1)}
-        </Badge>
       </div>
     </div>
   )

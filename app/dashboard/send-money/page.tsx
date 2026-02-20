@@ -8,7 +8,7 @@ import { Account } from '@/types'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ArrowLeft, CheckCircle, Users } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Users, Send, Wallet, ArrowDownUp, DollarSign, ArrowRight, AlertCircle, Repeat, Building2, Globe } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -166,6 +166,14 @@ export default function SendMoneyPage() {
           setError('Please enter account number')
           return
         }
+        if (!wireTransferDetails.routingNumber.trim()) {
+          setError('Please enter routing number for domestic transfer')
+          return
+        }
+        if (wireTransferDetails.routingNumber.length !== 9) {
+          setError('Routing number must be 9 digits')
+          return
+        }
       } else if (transferType === 'international') {
         if (!recipientName.trim()) {
           setError('Please enter recipient name')
@@ -238,9 +246,11 @@ export default function SendMoneyPage() {
         
         await apiClient.transferMoney(
           fromAccountId,
-          '', // No destination account for external
+          undefined, // No destination account for external
           totalAmount,
-          note || transferNote
+          note || transferNote,
+          recipientName,
+          recipientAccount
         )
 
         // Save beneficiary if requested
@@ -262,148 +272,271 @@ export default function SendMoneyPage() {
     }
   }
 
+  const stepConfig = [
+    { id: 'select-from', label: 'From', icon: Wallet },
+    { id: 'transfer-type', label: 'Type', icon: ArrowDownUp },
+    { id: 'recipient', label: 'To', icon: Users },
+    { id: 'amount', label: 'Amount', icon: DollarSign },
+    { id: 'review', label: 'Review', icon: CheckCircle },
+  ]
+
+  const currentStepIndex = stepConfig.findIndex(s => s.id === currentStep)
+
   return (
-    <div className="p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="max-w-4xl mx-auto mb-6 md:mb-8">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => router.push('/dashboard')}
-          className="mb-4"
+          className="mb-4 hover:bg-primary/10"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
+          Back to Dashboard
         </Button>
-        <h1 className="text-3xl font-bold text-foreground">Send Money</h1>
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+            <Send className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Send Money</h1>
+            <p className="text-sm text-muted-foreground">Fast, secure transfers</p>
+          </div>
+        </div>
       </div>
 
-      {/* Select From Account Step - Moved before Quick Actions */}
+      {/* Progress Steps */}
+      {currentStep !== 'success' && (
+        <div className="max-w-4xl mx-auto mb-8">
+          <div className="flex items-center justify-between relative">
+            {/* Progress Line */}
+            <div className="absolute top-5 left-0 right-0 h-0.5 bg-border -z-10">
+              <div 
+                className="h-full bg-primary transition-all duration-500"
+                style={{ width: `${(currentStepIndex / (stepConfig.length - 1)) * 100}%` }}
+              />
+            </div>
+            
+            {stepConfig.map((step, index) => {
+              const StepIcon = step.icon
+              const isCompleted = index < currentStepIndex
+              const isCurrent = index === currentStepIndex
+              
+              return (
+                <div key={step.id} className="flex flex-col items-center gap-2 bg-background px-2">
+                  <div className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${
+                    isCompleted ? 'bg-primary text-white' :
+                    isCurrent ? 'bg-primary text-white ring-4 ring-primary/20' :
+                    'bg-muted text-muted-foreground'
+                  }`}>
+                    <StepIcon className="h-5 w-5" />
+                  </div>
+                  <span className={`text-xs font-medium hidden sm:block ${
+                    isCurrent ? 'text-primary' : 'text-muted-foreground'
+                  }`}>
+                    {step.label}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Select From Account Step */}
       {currentStep === 'select-from' && (
-        <>
-          <Card className="p-8 mb-8">
-            <h2 className="text-2xl font-bold text-foreground mb-6">
-              Select Account to Send From
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  From Account
-                </label>
-                <Select value={fromAccountId} onValueChange={setFromAccountId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an account" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
-                        <div className="flex items-center justify-between w-full">
-                          <span className="capitalize">{account.account_type?.display_name || 'Account'} - {account.account_number}</span>
-                          <span className="ml-4 text-foreground/60">${account.balance.toFixed(2)}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        <div className="max-w-4xl mx-auto">
+          <Card className="border-0 shadow-xl bg-card/50 backdrop-blur">
+            <div className="p-6 md:p-8">
+              <div className="mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">
+                  Choose source account
+                </h2>
+                <p className="text-sm text-muted-foreground">Select the account you want to send money from</p>
               </div>
+              
+              <div className="space-y-3">
+                {accounts.map((account) => (
+                  <button
+                    key={account.id}
+                    onClick={() => setFromAccountId(account.id)}
+                    className={`w-full p-4 rounded-xl border-2 text-left transition-all hover:shadow-md ${
+                      fromAccountId === account.id
+                        ? 'border-primary bg-primary/5 shadow-md'
+                        : 'border-border hover:border-primary/30'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                          <Wallet className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-foreground capitalize">
+                            {account.account_type?.display_name || 'Account'}
+                          </p>
+                          <p className="text-sm text-muted-foreground font-mono">
+                            {account.account_number}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-foreground">
+                          ${account.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Available</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
               {error && (
-                <div className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
-                  {error}
+                <div className="mt-4 rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <span>{error}</span>
                 </div>
               )}
-              <Button onClick={handleNextStep} className="w-full">
+              
+              <Button 
+                onClick={handleNextStep} 
+                className="w-full mt-6 h-12 text-base font-semibold"
+                disabled={!fromAccountId}
+              >
                 Continue
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </Card>
-
-        </>
+        </div>
       )}
 
       {/* Transfer Type Selection Step */}
       {currentStep === 'transfer-type' && (
-        <Card className="p-8">
-          <h2 className="text-2xl font-bold text-foreground mb-6">
-            Select Transfer Type
-          </h2>
-          <div className="space-y-4">
-            <div className="grid gap-4">
-              <button
-                onClick={() => setTransferType('own')}
-                className={`p-6 rounded-lg border-2 text-left transition-all ${
-                  transferType === 'own'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <h3 className="font-semibold text-lg mb-2">My Accounts</h3>
-                <p className="text-sm text-foreground/60">Transfer between your own accounts</p>
-              </button>
+        <div className="max-w-4xl mx-auto">
+          <Card className="border-0 shadow-xl bg-card/50 backdrop-blur">
+            <div className="p-6 md:p-8">
+              <div className="mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">
+                  How do you want to send?
+                </h2>
+                <p className="text-sm text-muted-foreground">Choose your transfer method</p>
+              </div>
               
-              <button
-                onClick={() => setTransferType('local')}
-                className={`p-6 rounded-lg border-2 text-left transition-all ${
-                  transferType === 'local'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <h3 className="font-semibold text-lg mb-2">Local Transfer</h3>
-                <p className="text-sm text-foreground/60">Send money to other accounts within the country</p>
-              </button>
-              
-              <button
-                onClick={() => setTransferType('international')}
-                className={`p-6 rounded-lg border-2 text-left transition-all ${
-                  transferType === 'international'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">International Transfer</h3>
-                    <p className="text-sm text-foreground/60">Send via Venmo, PayPal, Zelle, Wise, or wire transfer</p>
-                    <div className="flex gap-2 mt-2">
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Venmo</span>
-                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">PayPal</span>
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Zelle</span>
-                      <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">Wise</span>
+              <div className="grid gap-4">
+                <button
+                  onClick={() => setTransferType('own')}
+                  className={`group p-6 rounded-xl border-2 text-left transition-all hover:shadow-lg ${
+                    transferType === 'own'
+                      ? 'border-primary bg-primary/5 shadow-md'
+                      : 'border-border hover:border-primary/30'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`h-12 w-12 rounded-xl flex items-center justify-center transition-colors ${
+                      transferType === 'own' ? 'bg-primary text-white' : 'bg-primary/10 text-primary group-hover:bg-primary/20'
+                    }`}>
+                      <Repeat className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-1">My Accounts</h3>
+                      <p className="text-sm text-muted-foreground">Transfer between your own accounts instantly</p>
+                      <div className="mt-2 flex items-center gap-2 text-xs text-primary">
+                        <span className="px-2 py-0.5 rounded-full bg-primary/10">Instant</span>
+                        <span className="px-2 py-0.5 rounded-full bg-primary/10">No fees</span>
+                      </div>
                     </div>
                   </div>
-                  {!kycVerified && (
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">KYC Required</span>
-                  )}
-                </div>
-                {!kycVerified && (
-                  <p className="text-xs text-yellow-600 mt-2">⚠️ You need to complete KYC verification first</p>
-                )}
-              </button>
-            </div>
-            
-            {error && (
-              <div className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
-                {error}
+                </button>
+                
+                <button
+                  onClick={() => setTransferType('local')}
+                  className={`group p-6 rounded-xl border-2 text-left transition-all hover:shadow-lg ${
+                    transferType === 'local'
+                      ? 'border-primary bg-primary/5 shadow-md'
+                      : 'border-border hover:border-primary/30'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`h-12 w-12 rounded-xl flex items-center justify-center transition-colors ${
+                      transferType === 'local' ? 'bg-primary text-white' : 'bg-green-500/10 text-green-600 group-hover:bg-green-500/20'
+                    }`}>
+                      <Building2 className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg mb-1">Local Transfer</h3>
+                      <p className="text-sm text-muted-foreground">Send money to other banks within the country</p>
+                      <div className="mt-2 flex items-center gap-2 text-xs text-green-600">
+                        <span className="px-2 py-0.5 rounded-full bg-green-500/10">1-3 business days</span>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              
+                <button
+                  onClick={() => setTransferType('international')}
+                  className={`group p-6 rounded-xl border-2 text-left transition-all hover:shadow-lg ${
+                    transferType === 'international'
+                      ? 'border-primary bg-primary/5 shadow-md'
+                      : 'border-border hover:border-primary/30'
+                  }`}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`h-12 w-12 rounded-xl flex items-center justify-center transition-colors ${
+                      transferType === 'international' ? 'bg-primary text-white' : 'bg-blue-500/10 text-blue-600 group-hover:bg-blue-500/20'
+                    }`}>
+                      <Globe className="h-6 w-6" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-1">
+                        <h3 className="font-semibold text-lg">International Transfer</h3>
+                        {!kycVerified && (
+                          <span className="text-xs bg-yellow-500/10 text-yellow-600 px-2 py-1 rounded-full">KYC Required</span>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">Send money worldwide via wire transfer</p>
+                      <div className="mt-2 flex items-center gap-2 text-xs text-blue-600">
+                        <span className="px-2 py-0.5 rounded-full bg-blue-500/10">3-5 business days</span>
+                      </div>
+                      {!kycVerified && (
+                        <p className="text-xs text-yellow-600 mt-2 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          Complete KYC verification to enable
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </button>
               </div>
-            )}
-            
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentStep('select-from')}
-                className="flex-1"
-              >
-                Back
-              </Button>
-              <Button onClick={handleNextStep} className="flex-1">
-                Continue
-              </Button>
+              
+              {error && (
+                <div className="mt-4 rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+              
+              <div className="flex gap-3 mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep('select-from')}
+                  className="flex-1 h-12"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back
+                </Button>
+                <Button onClick={handleNextStep} className="flex-1 h-12 font-semibold">
+                  Continue
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       )}
 
-      <div className="max-w-2xl">
+      <div className="max-w-4xl mx-auto">
         {/* Recipient Step */}
         {currentStep === 'recipient' && (
           <Card className="p-8">
@@ -493,6 +626,27 @@ export default function SendMoneyPage() {
                   </div>
                 )}
                 
+                {/* Routing Number - Required for Local Transfers */}
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Routing Number *
+                  </label>
+                  <Input
+                    value={wireTransferDetails.routingNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '')
+                      if (value.length <= 9) {
+                        setWireTransferDetails({...wireTransferDetails, routingNumber: value})
+                      }
+                    }}
+                    placeholder="9-digit routing number"
+                    maxLength={9}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enter the recipient's bank routing number (9 digits)
+                  </p>
+                </div>
+                
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -557,12 +711,18 @@ export default function SendMoneyPage() {
                   
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Routing Number
+                      Routing Number (Optional)
                     </label>
                     <Input
                       value={wireTransferDetails.routingNumber}
-                      onChange={(e) => setWireTransferDetails({...wireTransferDetails, routingNumber: e.target.value})}
-                      placeholder="Optional"
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '')
+                        if (value.length <= 9) {
+                          setWireTransferDetails({...wireTransferDetails, routingNumber: value})
+                        }
+                      }}
+                      placeholder="9 digits (if applicable)"
+                      maxLength={9}
                     />
                   </div>
                 </div>

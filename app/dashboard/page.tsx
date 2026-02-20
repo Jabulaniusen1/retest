@@ -111,8 +111,28 @@ export default function DashboardPage() {
     ? `${currentAccount?.account_type?.display_name || 'Account'} - ${currentAccount?.account_number?.slice(-4) || ''}` 
     : `${cryptoBalances.length} Crypto Assets`
 
+  // Check if any account is frozen
+  const hasFrozenAccount = accounts.some(acc => acc.status === 'frozen')
+
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
+      {/* Frozen Account Warning */}
+      {hasFrozenAccount && (
+        <div className="mb-4 md:mb-6 p-4 md:p-6 bg-red-500/10 border-2 border-red-500 rounded-lg">
+          <div className="flex items-start gap-3">
+            <div className="h-6 w-6 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-white text-sm font-bold">!</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-base md:text-lg font-bold text-red-600 mb-2">Account Suspended</h3>
+              <p className="text-sm md:text-base text-red-700 mb-3">
+                We have detected unusual activities on your account coming from multiple locations, contact support
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="flex items-center gap-2 md:gap-3">

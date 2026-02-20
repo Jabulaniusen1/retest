@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { Home, Wallet, Send, History, Settings } from 'lucide-react'
+import { Icon } from '@/components/Icon'
 
 export function MobileNav() {
   const pathname = usePathname()
@@ -10,32 +10,27 @@ export function MobileNav() {
   const navItems = [
     {
       label: 'Home',
-      icon: Home,
+      icon: 'home' as const,
       href: '/dashboard',
     },
     {
       label: 'Accounts',
-      icon: Wallet,
+      icon: 'wallet' as const,
       href: '/dashboard/accounts',
     },
     {
       label: 'Send',
-      icon: Send,
+      icon: 'send' as const,
       href: '/dashboard/send-money',
     },
     {
       label: 'History',
-      icon: History,
+      icon: 'history' as const,
       href: '/dashboard/transactions',
     },
-    // {
-    //   label: 'Cards',
-    //   icon: CreditCard,
-    //   href: '/dashboard/cards',
-    // },
     {
       label: 'Settings',
-      icon: Settings,
+      icon: 'settings' as const,
       href: '/dashboard/settings',
     },
   ]
@@ -44,7 +39,6 @@ export function MobileNav() {
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border md:hidden">
       <nav className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
         {navItems.map((item) => {
-          const Icon = item.icon
           const isActive = pathname === item.href
           return (
             <button
@@ -56,7 +50,7 @@ export function MobileNav() {
                   : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
-              <Icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+              <Icon name={item.icon} size={20} />
               <span className={`text-xs font-medium ${isActive ? 'font-semibold' : ''}`}>
                 {item.label}
               </span>

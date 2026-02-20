@@ -5,14 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import { Profile } from '@/types'
-import {
-  Home,
-  Send,
-  History,
-  Settings,
-  LogOut,
-  Wallet,
-} from 'lucide-react'
+import { Icon } from '@/components/Icon'
 
 export function Sidebar() {
   const { logout, user } = useAuth()
@@ -43,22 +36,22 @@ export function Sidebar() {
   const menuItems = [
     {
       label: 'Home',
-      icon: Home,
+      icon: 'home' as const,
       href: '/dashboard',
     },
     {
       label: 'Accounts',
-      icon: Wallet,
+      icon: 'wallet' as const,
       href: '/dashboard/accounts',
     },
     {
       label: 'Transactions',
-      icon: History,
+      icon: 'history' as const,
       href: '/dashboard/transactions',
     },
     {
       label: 'Settings',
-      icon: Settings,
+      icon: 'settings' as const,
       href: '/dashboard/settings',
     },
   ]
@@ -80,7 +73,6 @@ export function Sidebar() {
       {/* Menu Items */}
       <nav className="flex-1 space-y-2 p-4 overflow-hidden">
         {menuItems.map((item) => {
-          const Icon = item.icon
           const isActive = pathname === item.href
           return (
             <Button
@@ -93,7 +85,7 @@ export function Sidebar() {
               }`}
               onClick={() => router.push(item.href)}
             >
-              <Icon className="mr-4 h-6 w-6" />
+              <Icon name={item.icon} className="mr-4" size={24} />
               {item.label}
             </Button>
           )
@@ -102,7 +94,10 @@ export function Sidebar() {
 
       {/* User Info */}
       <div className="border-b border-slate-700 p-6 flex-shrink-0">
-        <div className="flex items-center gap-3">
+        <button
+          onClick={() => router.push('/dashboard/profile')}
+          className="flex items-center gap-3 w-full hover:bg-slate-700/50 p-2 rounded-lg transition-colors duration-200 cursor-pointer"
+        >
           {profile?.avatar_url ? (
             <img
               src={profile.avatar_url}
@@ -114,11 +109,11 @@ export function Sidebar() {
               {user?.name.charAt(0).toUpperCase()}
             </div>
           )}
-          <div>
+          <div className="text-left">
             <p className="text-sm font-semibold text-white">{user?.name}</p>
             <p className="text-xs text-blue-200 truncate max-w-[150px]">{user?.email}</p>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Logout */}
@@ -128,7 +123,7 @@ export function Sidebar() {
           className="w-full justify-start h-14 text-base font-medium text-slate-300 border-slate-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200"
           onClick={handleLogout}
         >
-          <LogOut className="mr-4 h-6 w-6" />
+          <Icon name="logout" className="mr-4" size={24} />
           Logout
         </Button>
       </div>

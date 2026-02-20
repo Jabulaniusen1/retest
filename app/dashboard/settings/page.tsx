@@ -3,11 +3,11 @@
 import { useAuth } from '@/lib/auth-context'
 import { apiClient } from '@/lib/api-client'
 import { createClient } from '@/lib/supabase/client'
-import { Profile } from '@/types'
+import { Profile, VirtualCard } from '@/types'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ArrowLeft, Bell, Lock, Eye, Edit, Save, X, Upload, User } from 'lucide-react'
+import { ArrowLeft, Bell, Lock, Eye, Edit, Save, X, Upload, User, CreditCard, Snowflake, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { useToast } from '@/hooks/use-toast'
@@ -22,6 +22,8 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [editingProfile, setEditingProfile] = useState(false)
   const [changingPassword, setChangingPassword] = useState(false)
+  const [virtualCards, setVirtualCards] = useState<VirtualCard[]>([])
+  const [cardsLoading, setCardsLoading] = useState(false)
   
   // Profile form state
   const [fullName, setFullName] = useState('')
@@ -68,7 +70,59 @@ export default function SettingsPage() {
       }
     }
     fetchProfile()
+    fetchVirtualCards()
   }, [user])
+
+  const fetchVirtualCards = async () => {
+    if (!user) return
+    setCardsLoading(true)
+    try {
+      const cards = await apiClient.getVirtualCards(user.id)
+      setVirtualCards(cards || [])
+    } catch (error) {
+      console.error('Error fetching virtual cards:', error)
+    } finally {
+      setCardsLoading(false)
+    }
+  }
+
+  const handleFreezeCard = async (cardId: string, currentStatus: string) => {
+    try {
+      const newStatus = currentStatus === 'active' ? 'frozen' : 'active'
+      await apiClient.updateVirtualCardStatus(cardId, newStatus)
+      toast({
+        title: 'Success',
+        description: `Card ${newStatus === 'frozen' ? 'frozen' : 'unfrozen'} successfully`
+      })
+      fetchVirtualCards()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to update card status',
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleDeleteCard = async (cardId: string) => {
+    if (!confirm('Are you sure you want to delete this virtual card? This action cannot be undone.')) {
+      return
+    }
+    try {
+      await apiClient.updateVirtualCardStatus(cardId, 'cancelled')
+      toast({
+        title: 'Success',
+        description: 'Virtual card deleted successfully'
+      })
+      fetchVirtualCards()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to delete card',
+        variant: 'destructive'
+      })
+    }
+  }
 
   const handleSaveProfile = async () => {
     if (!user) return
@@ -268,217 +322,6 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-2xl space-y-6">
-        {/* Account Settings */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-foreground">
-              Account Information
-            </h2>
-            {!editingProfile && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setEditingProfile(true)}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-            )}
-          </div>
-          
-          {/* Profile Picture Section */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-foreground mb-2">
-              Profile Picture
-            </label>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Profile"
-                    className="h-20 w-20 rounded-full object-cover border-2 border-border"
-                  />
-                ) : (
-                  <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
-                    <User className="h-10 w-10 text-primary/40" />
-                  </div>
-                )}
-                {editingProfile && (
-                  <div className="absolute -bottom-1 -right-1">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarUpload}
-                      className="hidden"
-                      id="avatar-upload"
-                    />
-                    <label
-                      htmlFor="avatar-upload"
-                      className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors"
-                    >
-                      <Upload className="h-4 w-4" />
-                    </label>
-                  </div>
-                )}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-foreground/60">
-                  {editingProfile ? 'Click the camera icon to upload a new profile picture' : 'Profile picture'}
-                </p>
-                {editingProfile && avatarUrl && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleRemoveAvatar}
-                    disabled={uploadingAvatar}
-                    className="mt-2"
-                  >
-                    Remove Picture
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-          {editingProfile ? (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Full Name
-                </label>
-                <Input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="John Doe"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Email (cannot be changed)
-                </label>
-                <Input value={user?.email} disabled />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Phone
-                </label>
-                <Input
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 (555) 123-4567"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Date of Birth
-                </label>
-                <Input
-                  type="date"
-                  value={dateOfBirth}
-                  onChange={(e) => setDateOfBirth(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Address
-                </label>
-                <Input
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="123 Main St"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    City
-                  </label>
-                  <Input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="New York"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    State
-                  </label>
-                  <Input
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    placeholder="NY"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  ZIP Code
-                </label>
-                <Input
-                  value={zipCode}
-                  onChange={(e) => setZipCode(e.target.value)}
-                  placeholder="10001"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleSaveProfile}
-                  disabled={saveLoading}
-                  className="flex-1"
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  {saveLoading ? 'Saving...' : 'Save Changes'}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditingProfile(false)
-                    setFullName(profile?.full_name || '')
-                    setPhone(profile?.phone || '')
-                    setAddress(profile?.address || '')
-                    setCity(profile?.city || '')
-                    setState(profile?.state || '')
-                    setZipCode(profile?.zip_code || '')
-                  }}
-                  disabled={saveLoading}
-                  className="flex-1"
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm text-foreground/60">Full Name</label>
-                <p className="text-lg font-semibold text-foreground">{fullName || 'Not set'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-foreground/60">Email</label>
-                <p className="text-lg font-semibold text-foreground">{user?.email}</p>
-              </div>
-              <div>
-                <label className="text-sm text-foreground/60">Phone</label>
-                <p className="text-lg font-semibold text-foreground">{phone || 'Not set'}</p>
-              </div>
-              <div>
-                <label className="text-sm text-foreground/60">Date of Birth</label>
-                <p className="text-lg font-semibold text-foreground">
-                  {dateOfBirth ? new Date(dateOfBirth).toLocaleDateString() : 'Not set'}
-                </p>
-              </div>
-              <div>
-                <label className="text-sm text-foreground/60">Address</label>
-                <p className="text-lg font-semibold text-foreground">
-                  {address ? `${address}, ${city}, ${state} ${zipCode}` : 'Not set'}
-                </p>
-              </div>
-            </div>
-          )}
-        </Card>
-
         {/* Security Settings */}
         <Card className="p-6">
           <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
@@ -604,6 +447,75 @@ export default function SettingsPage() {
           </div>
         </Card>
 
+        {/* Virtual Cards Management */}
+        <Card className="p-6">
+          <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Virtual Cards
+          </h2>
+          {cardsLoading ? (
+            <div className="text-center py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+            </div>
+          ) : virtualCards.length === 0 ? (
+            <div className="text-center py-8">
+              <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-foreground/60 mb-4">No virtual cards yet</p>
+              <Button onClick={() => router.push('/dashboard/virtual-cards')}>
+                Create Virtual Card
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {virtualCards.map((card) => (
+                <div key={card.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-foreground">{card.card_holder_name}</p>
+                      <p className="text-sm text-muted-foreground">•••• •••• •••• {card.card_number.slice(-4)}</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded text-xs font-medium ${
+                      card.status === 'active' ? 'bg-green-100 text-green-700' :
+                      card.status === 'frozen' ? 'bg-blue-100 text-blue-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {card.status.toUpperCase()}
+                    </div>
+                  </div>
+                  {card.status !== 'cancelled' && (
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => handleFreezeCard(card.id, card.status)}
+                      >
+                        <Snowflake className="h-4 w-4 mr-2" />
+                        {card.status === 'active' ? 'Freeze' : 'Unfreeze'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => handleDeleteCard(card.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => router.push('/dashboard/virtual-cards')}
+              >
+                Manage All Virtual Cards
+              </Button>
+            </div>
+          )}
+        </Card>
+
         {/* Privacy Settings */}
         <Card className="p-6">
           <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
@@ -614,10 +526,18 @@ export default function SettingsPage() {
             <p className="text-sm text-foreground/60">
               Control how your information is used and shared
             </p>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => router.push('/privacy')}
+            >
               Privacy Policy
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => router.push('/terms')}
+            >
               Terms of Service
             </Button>
           </div>

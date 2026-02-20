@@ -124,6 +124,49 @@ export const apiClient = {
     return data.beneficiary
   },
 
+  async updateBeneficiary(beneficiaryId: string, updates: { name?: string; nickname?: string }) {
+    const response = await fetch('/api/beneficiaries/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ beneficiaryId, updates })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.beneficiary
+  },
+
+  async deleteBeneficiary(beneficiaryId: string) {
+    const response = await fetch('/api/beneficiaries/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ beneficiaryId })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.success
+  },
+
+  // Notification operations
+  async getNotifications(userId: string, unreadOnly: boolean = false) {
+    const url = unreadOnly 
+      ? `/api/notifications/${userId}?unreadOnly=true`
+      : `/api/notifications/${userId}`
+    const response = await fetch(url)
+    const data = await response.json()
+    return data.notifications
+  },
+
+  async markNotificationAsRead(notificationId: string) {
+    const response = await fetch('/api/notifications/mark-read', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notificationId })
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.error)
+    return data.notification
+  },
+
   // Card operations
   async getCardsByUserId(userId: string) {
     const response = await fetch(`/api/cards/user/${userId}`)

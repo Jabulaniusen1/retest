@@ -3,7 +3,7 @@
 import { useAuth } from '@/lib/auth-context'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { LogOut, Settings } from 'lucide-react'
+import { Icon } from '@/components/Icon'
 
 export function Navbar() {
   const { user, logout } = useAuth()
@@ -30,7 +30,7 @@ export function Navbar() {
             onClick={() => router.push('/dashboard/settings')}
             title="Settings"
           >
-            <Settings className="h-5 w-5" />
+            <Icon name="settings" size={20} />
           </Button>
           <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-semibold text-primary">
             {user?.name.charAt(0).toUpperCase()}
@@ -41,7 +41,7 @@ export function Navbar() {
             onClick={handleLogout}
             title="Logout"
           >
-            <LogOut className="h-5 w-5" />
+            <Icon name="logout" size={20} />
           </Button>
         </div>
       </div>

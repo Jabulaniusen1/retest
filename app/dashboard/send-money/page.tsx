@@ -45,10 +45,7 @@ export default function SendMoneyPage() {
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [beneficiaries, setBeneficiaries] = useState<any[]>([])
   const [recentTransfers, setRecentTransfers] = useState<any[]>([])
-  const [saveBeneficiary, setSaveBeneficiary] = useState(false)
-  const [selectedBeneficiary, setSelectedBeneficiary] = useState('')
   const [quickAmount, setQuickAmount] = useState('')
   
   // Account verification states
@@ -69,14 +66,12 @@ export default function SendMoneyPage() {
     async function fetchData() {
       if (user) {
         try {
-          const [accs, bens, recent, kyc] = await Promise.all([
+          const [accs, recent, kyc] = await Promise.all([
             apiClient.getAccounts(user.id),
-            apiClient.getBeneficiaries(user.id),
             apiClient.getRecentTransfers(user.id, 5),
             apiClient.getKYCVerification(user.id)
           ])
           setAccounts(accs)
-          setBeneficiaries(bens)
           setRecentTransfers(recent)
           setKycVerified(kyc?.status === 'approved')
         } catch (error) {
@@ -228,14 +223,12 @@ export default function SendMoneyPage() {
 
     try {
       const amountNum = parseFloat(amount)
-      const fee = amountNum * 0.005 // 0.5% fee
-      const totalAmount = amountNum + fee
 
       if (transferType === 'own' && toAccountId) {
         await apiClient.transferMoney(
           fromAccountId,
           toAccountId,
-          totalAmount,
+          amountNum,
           note || 'Transfer between accounts'
         )
       } else {
@@ -247,20 +240,12 @@ export default function SendMoneyPage() {
         await apiClient.transferMoney(
           fromAccountId,
           undefined, // No destination account for external
-          totalAmount,
+          amountNum,
           note || transferNote,
           recipientName,
           recipientAccount
         )
 
-        // Save beneficiary if requested
-        if (saveBeneficiary && user) {
-          await apiClient.createBeneficiary(
-            user.id,
-            recipientAccount,
-            recipientName
-          )
-        }
       }
 
       setTransferTimestamp(new Date())
@@ -647,18 +632,6 @@ export default function SendMoneyPage() {
                   </p>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="save-beneficiary"
-                    checked={saveBeneficiary}
-                    onChange={(e) => setSaveBeneficiary(e.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  <label htmlFor="save-beneficiary" className="text-sm text-foreground">
-                    Save as beneficiary
-                  </label>
-                </div>
               </>
               ) : (
                 <>
@@ -762,18 +735,6 @@ export default function SendMoneyPage() {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="save-beneficiary"
-                    checked={saveBeneficiary}
-                    onChange={(e) => setSaveBeneficiary(e.target.checked)}
-                    className="h-4 w-4"
-                  />
-                  <label htmlFor="save-beneficiary" className="text-sm text-foreground">
-                    Save as beneficiary
-                  </label>
-                </div>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-800">
@@ -935,27 +896,27 @@ export default function SendMoneyPage() {
 
         {/* Success Step */}
         {currentStep === 'success' && (
-          <Card className="p-8 text-center">
-            <div className="mb-6 flex justify-center">
-              <div className="rounded-full bg-primary/10 p-6">
-                <CheckCircle className="h-12 w-12 text-primary" />
+          <Card className="p-4 md:p-6 text-center">
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-full bg-primary/10 p-3">
+                <CheckCircle className="h-8 w-8 text-primary" />
               </div>
             </div>
-            <h2 className="text-3xl font-bold text-foreground mb-2">
+            <h2 className="text-xl md:text-2xl font-bold text-foreground mb-1">
               Transfer Successful!
             </h2>
-            <p className="text-foreground/60 mb-8">
+            <p className="text-sm text-foreground/60 mb-4">
               Your transfer has been completed
             </p>
 
-            <div className="mb-8 rounded-lg bg-secondary p-6 text-left">
-              <h3 className="text-lg font-semibold text-foreground mb-4 pb-3 border-b border-border">
+            <div className="mb-4 rounded-lg bg-secondary p-3 md:p-4 text-left">
+              <h3 className="text-sm font-semibold text-foreground mb-2 pb-2 border-b border-border">
                 Transaction Receipt
               </h3>
               
-              <div className="grid gap-4">
+              <div className="grid gap-2">
                 {/* Date & Time */}
-                <div className="flex justify-between">
+                <div className="flex justify-between text-xs">
                   <span className="text-foreground/60">Date & Time</span>
                   <span className="font-medium text-foreground">
                     {transferTimestamp ? transferTimestamp.toLocaleString('en-US', {
@@ -975,45 +936,45 @@ export default function SendMoneyPage() {
                 </div>
 
                 {/* Sender Details */}
-                <div className="pt-3 border-t border-border">
-                  <div className="text-sm font-semibold text-foreground mb-2">From (Sender)</div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-foreground/60 text-sm">Account</span>
-                    <span className="font-medium text-foreground text-sm">
+                <div className="pt-2 border-t border-border">
+                  <div className="text-xs font-semibold text-foreground mb-1">From (Sender)</div>
+                  <div className="flex justify-between mb-0.5 text-xs">
+                    <span className="text-foreground/60">Account</span>
+                    <span className="font-medium text-foreground">
                       {fromAccount?.account_type?.display_name || 'Account'}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-foreground/60 text-sm">Account Number</span>
-                    <span className="font-medium text-foreground text-sm">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-foreground/60">Account Number</span>
+                    <span className="font-medium text-foreground">
                       {fromAccount?.account_number}
                     </span>
                   </div>
                 </div>
 
                 {/* Recipient Details */}
-                <div className="pt-3 border-t border-border">
-                  <div className="text-sm font-semibold text-foreground mb-2">To (Recipient)</div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-foreground/60 text-sm">Name</span>
-                    <span className="font-medium text-foreground text-sm">
+                <div className="pt-2 border-t border-border">
+                  <div className="text-xs font-semibold text-foreground mb-1">To (Recipient)</div>
+                  <div className="flex justify-between mb-0.5 text-xs">
+                    <span className="text-foreground/60">Name</span>
+                    <span className="font-medium text-foreground">
                       {transferType === 'own' 
                         ? toAccount?.account_type?.display_name || 'My Account'
                         : recipientName || 'External Recipient'}
                     </span>
                   </div>
                   {(transferType === 'local' || transferType === 'international') && recipientAccount && (
-                    <div className="flex justify-between">
-                      <span className="text-foreground/60 text-sm">Account Number</span>
-                      <span className="font-medium text-foreground text-sm">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-foreground/60">Account Number</span>
+                      <span className="font-medium text-foreground">
                         {recipientAccount}
                       </span>
                     </div>
                   )}
                   {transferType === 'own' && toAccount && (
-                    <div className="flex justify-between">
-                      <span className="text-foreground/60 text-sm">Account Number</span>
-                      <span className="font-medium text-foreground text-sm">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-foreground/60">Account Number</span>
+                      <span className="font-medium text-foreground">
                         {toAccount.account_number}
                       </span>
                     </div>
@@ -1021,22 +982,22 @@ export default function SendMoneyPage() {
                 </div>
 
                 {/* Amount Breakdown */}
-                <div className="pt-3 border-t border-border">
-                  <div className="flex justify-between mb-2">
+                <div className="pt-2 border-t border-border">
+                  <div className="flex justify-between mb-1 text-xs">
                     <span className="text-foreground/60">Transfer Amount</span>
                     <span className="font-medium text-foreground">
                       ${parseFloat(amount).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between mb-2">
+                  <div className="flex justify-between mb-1 text-xs">
                     <span className="text-foreground/60">Transaction Fee (0.5%)</span>
                     <span className="font-medium text-foreground">
                       ${(parseFloat(amount) * 0.005).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between pt-2 border-t border-border">
+                  <div className="flex justify-between pt-1 border-t border-border text-xs">
                     <span className="font-semibold text-foreground">Total Debited</span>
-                    <span className="font-bold text-foreground text-lg">
+                    <span className="font-bold text-foreground">
                       ${(parseFloat(amount) * 1.005).toFixed(2)}
                     </span>
                   </div>
@@ -1044,15 +1005,15 @@ export default function SendMoneyPage() {
 
                 {/* Description/Note */}
                 {note && (
-                  <div className="pt-3 border-t border-border">
-                    <div className="text-sm font-semibold text-foreground mb-1">Description</div>
-                    <p className="text-foreground/70 text-sm">{note}</p>
+                  <div className="pt-2 border-t border-border">
+                    <div className="text-xs font-semibold text-foreground mb-0.5">Description</div>
+                    <p className="text-foreground/70 text-xs">{note}</p>
                   </div>
                 )}
 
                 {/* New Balance */}
-                <div className="pt-3 border-t border-border bg-primary/5 -mx-6 px-6 py-3 rounded-b-lg">
-                  <div className="flex justify-between">
+                <div className="pt-2 border-t border-border bg-primary/5 -mx-3 md:-mx-4 px-3 md:px-4 py-2 rounded-b-lg">
+                  <div className="flex justify-between text-xs">
                     <span className="font-semibold text-foreground">New Balance</span>
                     <span className="font-bold text-foreground">
                       ${fromAccount ? (fromAccount.balance - parseFloat(amount) * 1.005).toFixed(2) : '0.00'}
@@ -1062,11 +1023,12 @@ export default function SendMoneyPage() {
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <Button
                 variant="outline"
                 onClick={() => router.push('/dashboard')}
-                className="flex-1"
+                className="flex-1 text-sm"
+                size="sm"
               >
                 Back to Dashboard
               </Button>
@@ -1080,7 +1042,8 @@ export default function SendMoneyPage() {
                   setNote('')
                   setTransferTimestamp(null)
                 }}
-                className="flex-1"
+                className="flex-1 text-sm"
+                size="sm"
               >
                 Send Again
               </Button>
@@ -1099,9 +1062,9 @@ export default function SendMoneyPage() {
               <Users className="mr-2 h-4 w-4" />
               Recent Transfers
             </h3>
-            {recentTransfers.length > 0 ? (
+            {recentTransfers?.length > 0 ? (
               <div className="space-y-2">
-                {recentTransfers.slice(0, 3).map((transfer) => (
+                {recentTransfers?.slice(0, 3).map((transfer) => (
                   <button
                     key={transfer.id}
                     onClick={() => {
@@ -1125,30 +1088,6 @@ export default function SendMoneyPage() {
             )}
           </Card>
 
-          {/* Saved Beneficiaries */}
-          <Card className="p-4">
-            <h3 className="font-medium mb-3">Saved Beneficiaries</h3>
-            {beneficiaries.length > 0 ? (
-              <div className="space-y-2">
-                {beneficiaries.slice(0, 3).map((beneficiary) => (
-                  <button
-                    key={beneficiary.id}
-                    onClick={() => {
-                      setRecipientName(beneficiary.name)
-                      setRecipientAccount(beneficiary.account_number)
-                      setCurrentStep('amount')
-                    }}
-                    className="w-full text-left p-2 rounded hover:bg-secondary text-sm"
-                  >
-                    <div className="font-medium">{beneficiary.nickname || beneficiary.name}</div>
-                    <div className="text-xs text-foreground/60">****{beneficiary.account_number.slice(-4)}</div>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-foreground/60">No saved beneficiaries</p>
-            )}
-          </Card>
 
           {/* Quick Amounts */}
           <Card className="p-4">

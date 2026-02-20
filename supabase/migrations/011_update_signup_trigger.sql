@@ -4,6 +4,27 @@
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 DROP FUNCTION IF EXISTS create_default_account();
 
+-- Add routing_number and swift_code columns if they don't exist
+ALTER TABLE public.accounts ADD COLUMN IF NOT EXISTS routing_number TEXT;
+ALTER TABLE public.accounts ADD COLUMN IF NOT EXISTS swift_code TEXT;
+
+-- Create function to generate routing number (9 digits) if it doesn't exist
+CREATE OR REPLACE FUNCTION generate_routing_number()
+RETURNS TEXT AS $$
+BEGIN
+  RETURN LPAD(FLOOR(RANDOM() * 1000000000)::TEXT, 9, '0');
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create function to generate SWIFT code (format: CCBKUS33XXX) if it doesn't exist
+CREATE OR REPLACE FUNCTION generate_swift_code()
+RETURNS TEXT AS $$
+BEGIN
+  -- Format: CCBK (Capital City Bank) + US (Country) + 33 (Location) + XXX (Branch)
+  RETURN 'CCBKUS33' || LPAD(FLOOR(RANDOM() * 1000)::TEXT, 3, '0');
+END;
+$$ LANGUAGE plpgsql;
+
 -- Recreate the function to handle signup without name requirement
 CREATE OR REPLACE FUNCTION create_default_account()
 RETURNS TRIGGER AS $$

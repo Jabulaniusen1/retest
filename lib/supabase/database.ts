@@ -676,15 +676,18 @@ export async function getRecentTransfers(userId: string, limit = 5) {
     .from('transactions')
     .select(`
       *,
-      from_account:accounts!transactions_from_account_id_fkey(account_number, account_type),
-      to_account:accounts!transactions_to_account_id_fkey(account_number, account_type)
+      from_account:accounts!transactions_from_account_id_fkey(account_number, account_type:account_types(display_name)),
+      to_account:accounts!transactions_to_account_id_fkey(account_number, account_type:account_types(display_name))
     `)
     .or(`from_account_id.in.(${accountIds.join(',')}),to_account_id.in.(${accountIds.join(',')})`)
     .in('transaction_type', ['transfer', 'payment'])
     .order('created_at', { ascending: false })
     .limit(limit)
 
-  if (error) throw error
+  if (error) {
+    console.error('Error fetching recent transfers:', error)
+    throw error
+  }
   
   // Process transactions to extract recipient info
   return data.map(transaction => {
@@ -867,15 +870,19 @@ export async function transferMoney(
     throw new Error('We have detected unusual activities on your account coming from multiple locations, contact support')
   }
 
-  // Check sufficient balance
-  if (fromAccount.balance < amount) {
+  // Calculate fee (0.5%)
+  const fee = amount * 0.005
+  const totalDeduction = amount + fee
+
+  // Check sufficient balance (including fee)
+  if (fromAccount.balance < totalDeduction) {
     throw new Error('Insufficient balance')
   }
 
-  // Update from account balance (always deduct)
+  // Update from account balance (deduct amount + fee)
   const { error: updateFromError } = await supabase
     .from('accounts')
-    .update({ balance: fromAccount.balance - amount })
+    .update({ balance: fromAccount.balance - totalDeduction })
     .eq('id', fromAccountId)
 
   if (updateFromError) throw updateFromError

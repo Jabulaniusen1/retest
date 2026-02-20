@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, CheckCircle2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { useToast } from '@/hooks/use-toast'
 
 export default function SignupPage() {
   // Account credentials
@@ -30,10 +31,12 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
   const [step, setStep] = useState<'credentials' | 'personal' | 'address'>('credentials')
   
   const { signup } = useAuth()
   const router = useRouter()
+  const { toast } = useToast()
 
   const validateCredentials = () => {
     if (!email || !password || !confirmPassword) {
@@ -159,10 +162,22 @@ export default function SignupPage() {
         }
       }
       
-      router.push('/dashboard')
+      // Show success state
+      setSuccess(true)
+      
+      // Show success toast
+      toast({
+        title: "Account Created Successfully! 🎉",
+        description: "Your checking account has been created. Redirecting to dashboard...",
+        duration: 3000,
+      })
+      
+      // Wait 3 seconds before redirecting
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 3000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed')
-    } finally {
       setLoading(false)
     }
   }
@@ -406,10 +421,19 @@ export default function SignupPage() {
                 ) : (
                   <Button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || success}
                     className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full py-6"
                   >
-                    {loading ? 'Creating account...' : 'Create Account'}
+                    {success ? (
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5" />
+                        Account Created!
+                      </span>
+                    ) : loading ? (
+                      'Creating account...'
+                    ) : (
+                      'Create Account'
+                    )}
                   </Button>
                 )}
               </div>

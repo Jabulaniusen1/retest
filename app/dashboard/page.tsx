@@ -6,7 +6,7 @@ import { Account, CryptoBalance } from '@/types'
 import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Send, Plus, Eye, EyeOff, Wallet, ArrowDownUp, CreditCard, Bitcoin, TrendingUp, Gift, Lightbulb, MessageCircle, Mail, Bell, Settings } from 'lucide-react'
+import { Send, Plus, Eye, EyeOff, Wallet, ArrowDownUp, CreditCard, Bitcoin, TrendingUp, Gift, Lightbulb, Mail, Bell, Settings } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { formatCurrency } from '@/lib/utils'
 
@@ -363,31 +363,18 @@ export default function DashboardPage() {
       {/* Support Section */}
       <div className="mb-6 md:mb-8">
         <h3 className="text-base md:text-lg font-bold text-foreground mb-3 md:mb-4">Need Help?</h3>
-        <div className="grid grid-cols-2 gap-3 md:gap-4">
-          <Card className="p-3 md:p-4 bg-gradient-to-br from-blue-500 to-blue-600 border-0 cursor-pointer hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                <MessageCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs md:text-sm font-semibold text-white">Live Chat</p>
-                <p className="text-[10px] md:text-xs text-blue-100 truncate">Chat with us now</p>
-              </div>
+        <Card className="p-4 md:p-6 bg-gradient-to-br from-purple-500 to-purple-600 border-0 cursor-pointer hover:shadow-lg transition-shadow">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <Mail className="h-6 w-6 md:h-7 md:w-7 text-white" />
             </div>
-          </Card>
-
-          <Card className="p-3 md:p-4 bg-gradient-to-br from-purple-500 to-purple-600 border-0 cursor-pointer hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-2 md:gap-3">
-              <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                <Mail className="h-5 w-5 md:h-6 md:w-6 text-white" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs md:text-sm font-semibold text-white">Email Support</p>
-                <p className="text-[10px] md:text-xs text-purple-100 truncate">support@capitalbank.com</p>
-              </div>
+            <div className="min-w-0">
+              <p className="text-sm md:text-base font-semibold text-white">Email Support</p>
+              <p className="text-xs md:text-sm text-purple-100">support@capitalbank.com</p>
+              <p className="text-xs text-purple-200 mt-1">We'll respond within 24 hours</p>
             </div>
-          </Card>
-        </div>
+          </div>
+        </Card>
       </div>
     </div>
   )

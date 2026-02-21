@@ -113,11 +113,11 @@ export async function sendAccountBlockedEmail(userEmail: string, userName: strin
             </ul>
             
             <p>
-              <a href="mailto:themarkhandle@gmail.com" class="button">Contact Support</a>
+              <a href="mailto:capitalcitybankorg@gmail.com " class="button">Contact Support</a>
             </p>
             
             <p><strong>Support Contact Information:</strong><br>
-            Email: themarkhandle@gmail.com<br>
+            Email: capitalcitybankorg@gmail.com <br>
             Phone: 1-800-CAPITAL (1-800-227-4825)<br>
             Available 24/7</p>
             
@@ -154,8 +154,8 @@ export async function sendAccountBlockedEmail(userEmail: string, userName: strin
     - Do not share your account credentials with anyone
     
     Support Contact Information:
-    Email: themarkhandle@gmail.com
-    Phone: 1-800-CAPITAL (1-800-227-4825)
+    Email: capitalcitybankorg@gmail.com 
+    Phone: 1-800-CAPITAL (1-835-127-4225)
     Available 24/7
     
     If you did not authorize these transactions, please contact us immediately.

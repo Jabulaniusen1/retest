@@ -370,7 +370,7 @@ export default function DashboardPage() {
             </div>
             <div className="min-w-0">
               <p className="text-sm md:text-base font-semibold text-white">Email Support</p>
-              <p className="text-xs md:text-sm text-purple-100">themarkhandle@gmail.com</p>
+              <p className="text-xs md:text-sm text-purple-100">capitalcitybankorg@gmail.com </p>
               <p className="text-xs text-purple-200 mt-1">We'll respond within 24 hours</p>
             </div>
           </div>

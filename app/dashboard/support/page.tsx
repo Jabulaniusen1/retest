@@ -35,7 +35,7 @@ export default function SupportPage() {
     {
       category: 'Account',
       question: 'How do I close my account?',
-      answer: 'To close an account, please contact our support team via email at themarkhandle@gmail.com or call us. We\'ll guide you through the process and ensure all pending transactions are settled.'
+      answer: 'To close an account, please contact our support team via email at capitalcitybankorg@gmail.com  or call us. We\'ll guide you through the process and ensure all pending transactions are settled.'
     },
     {
       category: 'Transfers',
@@ -149,8 +149,8 @@ export default function SupportPage() {
           <p className="text-sm text-purple-100 mb-4">
             We'll respond within 24 hours
           </p>
-          <a href="mailto:themarkhandle@gmail.com" className="text-sm font-medium underline">
-            themarkhandle@gmail.com
+          <a href="mailto:capitalcitybankorg@gmail.com " className="text-sm font-medium underline">
+            capitalcitybankorg@gmail.com 
           </a>
         </Card>
 
